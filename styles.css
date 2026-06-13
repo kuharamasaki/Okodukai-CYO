@@ -7,6 +7,10 @@
   --panel-strong: rgba(255, 255, 255, 0.96);
   --accent: #0f766e;
   --accent-dark: #115e59;
+  --income: #2563eb;
+  --income-soft: rgba(37, 99, 235, 0.1);
+  --expense: #ea580c;
+  --expense-soft: rgba(234, 88, 12, 0.12);
   --danger: #b91c1c;
   --shadow: 0 16px 42px rgba(15, 23, 42, 0.14);
 }
@@ -59,7 +63,6 @@ button {
 }
 
 .topbar,
-.summary-band,
 .panel {
   border: 1px solid var(--line);
   background: var(--panel);
@@ -118,32 +121,11 @@ h2 {
   margin-top: 16px;
 }
 
-.summary-band {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.summary-band article {
-  min-width: 0;
-  padding: 18px;
-  background: var(--panel-strong);
-}
-
-.summary-band span,
 .field span {
   display: block;
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 700;
-}
-
-.summary-band strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 1.35rem;
 }
 
 .work-grid {
@@ -193,32 +175,44 @@ select {
   background: rgba(255, 255, 255, 0.92);
 }
 
-.ledger-lists {
+input[type="number"] {
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.money-input {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(72px, 1fr) auto;
+  align-items: center;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
 }
 
-.ledger-list {
-  min-width: 0;
+.money-input input {
+  min-height: 36px;
+  border: 0;
+  background: transparent;
 }
 
-.ledger-list h3 {
-  margin: 0 0 10px;
-  font-size: 0.98rem;
-  letter-spacing: 0;
+.money-input span {
+  padding-right: 10px;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .ledger-entry-row {
   display: grid;
-  grid-template-columns: 132px minmax(120px, 0.9fr) minmax(150px, 1fr) 110px 64px 64px;
+  grid-template-columns: 132px 92px minmax(130px, 0.8fr) minmax(160px, 1fr) 128px 112px 64px 64px;
   gap: 8px;
   align-items: center;
   margin-bottom: 12px;
-}
-
-.ledger-entry-row.expense-row {
-  grid-template-columns: 132px minmax(120px, 0.8fr) minmax(130px, 1fr) 118px 100px 64px 64px;
 }
 
 .ledger-entry-row input,
@@ -365,6 +359,10 @@ table {
   min-width: 0;
 }
 
+.ledger-table {
+  min-width: 820px;
+}
+
 th,
 td {
   padding: 10px 8px;
@@ -382,6 +380,59 @@ td.amount {
   font-weight: 700;
 }
 
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  min-width: 52px;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.type-pill.income {
+  color: var(--income);
+  background: var(--income-soft);
+}
+
+.type-pill.expense {
+  color: var(--expense);
+  background: var(--expense-soft);
+}
+
+tr.entry-income td {
+  background: rgba(37, 99, 235, 0.04);
+}
+
+tr.entry-expense td {
+  background: rgba(234, 88, 12, 0.05);
+}
+
+.amount.income {
+  color: var(--income);
+}
+
+.amount.expense {
+  color: var(--expense);
+}
+
+tfoot th,
+tfoot td {
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 800;
+}
+
+tfoot td {
+  text-align: right;
+}
+
+.balance-row th,
+.balance-row td {
+  color: var(--accent-dark);
+  font-size: 1.08rem;
+}
+
 .delete-btn {
   min-width: 34px;
   min-height: 34px;
@@ -396,8 +447,7 @@ td.amount {
     flex-direction: column;
   }
 
-  .work-grid,
-  .summary-band {
+  .work-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -405,12 +455,7 @@ td.amount {
     grid-column: span 2;
   }
 
-  .ledger-lists {
-    grid-template-columns: 1fr;
-  }
-
-  .ledger-entry-row,
-  .ledger-entry-row.expense-row {
+  .ledger-entry-row {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -424,8 +469,6 @@ td.amount {
   .topbar-controls,
   .work-grid,
   .ledger-entry-row,
-  .ledger-entry-row.expense-row,
-  .summary-band,
   .wish-form {
     grid-template-columns: 1fr;
   }

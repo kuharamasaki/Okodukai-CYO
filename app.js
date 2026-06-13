@@ -13,8 +13,7 @@ const els = {
   incomeTotal: document.querySelector("#incomeTotal"),
   expenseTotal: document.querySelector("#expenseTotal"),
   balanceTotal: document.querySelector("#balanceTotal"),
-  closingStatus: document.querySelector("#closingStatus"),
-  ledgerForms: document.querySelectorAll("[data-entry-form]"),
+  ledgerEntryForm: document.querySelector("#ledgerEntryForm"),
   walletBalance: document.querySelector("#walletBalance"),
   confirmClosingBtn: document.querySelector("#confirmClosingBtn"),
   closingMessage: document.querySelector("#closingMessage"),
@@ -25,8 +24,7 @@ const els = {
   wishNeedTotal: document.querySelector("#wishNeedTotal"),
   wishList: document.querySelector("#wishList"),
   categoryChart: document.querySelector("#categoryChart"),
-  incomeRows: document.querySelector("#incomeRows"),
-  expenseRows: document.querySelector("#expenseRows"),
+  entryRows: document.querySelector("#entryRows"),
   exportBtn: document.querySelector("#exportBtn"),
 };
 
@@ -131,27 +129,28 @@ function renderSelectors() {
   els.childSelect.value = activeChild;
 
   if (!els.monthSelect.value) els.monthSelect.value = currentMonth();
-  els.ledgerForms.forEach((form) => {
-    const date = form.querySelector('[data-field="date"]');
-    const category = form.querySelector('[data-field="category"]');
-    if (date && !date.value) date.value = todayIso();
-    if (category) {
-      category.innerHTML = categories.map((item) => `<option value="${item}">${item}</option>`).join("");
-    }
-  });
+  const date = els.ledgerEntryForm.querySelector('[data-field="date"]');
+  const category = els.ledgerEntryForm.querySelector('[data-field="category"]');
+  if (date && !date.value) date.value = todayIso();
+  if (category) {
+    category.innerHTML = `<option value="">用途</option>${categories.map((item) => `<option value="${item}">${item}</option>`).join("")}`;
+  }
 }
 
 function renderTemplates() {
-  els.ledgerForms.forEach((form) => {
-    const type = form.dataset.entryForm;
-    const templateSelect = form.querySelector('[data-field="template"]');
-    const options = childState().templates
-      .map((template, index) => ({ template, index }))
-      .filter(({ template }) => template.type === type)
-      .map(({ template, index }) => `<option value="${index}">${escapeHtml(template.title)} / ${yen(template.amount)}</option>`)
-      .join("");
-    templateSelect.innerHTML = `<option value="">登録済み</option>${options}`;
-  });
+  const templateSelect = els.ledgerEntryForm.querySelector('[data-field="template"]');
+  const seen = new Set();
+  const options = childState().templates
+    .map((template, index) => ({ template, index }))
+    .filter(({ template }) => {
+      const title = template.title?.trim();
+      if (!title || seen.has(title)) return false;
+      seen.add(title);
+      return true;
+    })
+    .map(({ template, index }) => `<option value="${index}">${escapeHtml(template.title)}</option>`)
+    .join("");
+  templateSelect.innerHTML = `<option value="">登録済み</option>${options}`;
 }
 
 function renderThemes() {
@@ -180,7 +179,6 @@ function renderSummary() {
   els.incomeTotal.textContent = yen(income);
   els.expenseTotal.textContent = yen(expense);
   els.balanceTotal.textContent = yen(balance);
-  els.closingStatus.textContent = closing?.confirmed ? "一致済み" : "未確認";
   els.walletBalance.value = closing?.walletBalance ?? "";
   if (closing?.confirmed) {
     els.closingMessage.textContent = "翌月のお小遣いをもらえる状態です。";
@@ -196,35 +194,21 @@ function renderSummary() {
 
 function renderEntries() {
   const entries = entriesForMonth(els.monthSelect.value).sort((a, b) => b.date.localeCompare(a.date));
-  const incomeRows = entries
-    .filter((entry) => entry.type === "income")
+  const rows = entries
     .map(
       (entry) => `
-        <tr>
+        <tr class="${entry.type === "income" ? "entry-income" : "entry-expense"}">
           <td>${entry.date}</td>
+          <td><span class="type-pill ${entry.type}">${entry.type === "income" ? "収入" : "支出"}</span></td>
           <td>${escapeHtml(entry.title)}</td>
-          <td class="amount">${yen(entry.amount)}</td>
+          <td>${entry.type === "expense" ? escapeHtml(entry.category || "その他") : ""}</td>
+          <td class="amount ${entry.type}">${entry.type === "income" ? "+" : "-"}${yen(entry.amount)}</td>
           <td><button class="delete-btn" type="button" data-delete-entry="${entry.id}" aria-label="削除">×</button></td>
         </tr>
       `,
     )
     .join("");
-  const expenseRows = entries
-    .filter((entry) => entry.type === "expense")
-    .map(
-      (entry) => `
-        <tr>
-          <td>${entry.date}</td>
-          <td>${escapeHtml(entry.title)}</td>
-          <td>${escapeHtml(entry.category)}</td>
-          <td class="amount">${yen(entry.amount)}</td>
-          <td><button class="delete-btn" type="button" data-delete-entry="${entry.id}" aria-label="削除">×</button></td>
-        </tr>
-      `,
-    )
-    .join("");
-  els.incomeRows.innerHTML = incomeRows || `<tr><td colspan="4">この月の収入はまだありません。</td></tr>`;
-  els.expenseRows.innerHTML = expenseRows || `<tr><td colspan="5">この月の支出はまだありません。</td></tr>`;
+  els.entryRows.innerHTML = rows || `<tr><td colspan="6">この月の記録はまだありません。</td></tr>`;
 }
 
 function renderWishes() {
@@ -308,9 +292,9 @@ function setFormValue(form, field, value) {
 function addEntry(event) {
   event.preventDefault();
   const form = event.currentTarget;
-  const type = form.dataset.entryForm;
+  const type = formValue(form, "type");
   const title = formValue(form, "title").trim();
-  const amount = Number(formValue(form, "amount"));
+  const amount = Number(formValue(form, "amount").replace(/[^\d]/g, ""));
   if (!title || amount <= 0) return;
 
   childState().entries.push({
@@ -325,21 +309,16 @@ function addEntry(event) {
   setFormValue(form, "title", "");
   setFormValue(form, "amount", "");
   setFormValue(form, "template", "");
+  setFormValue(form, "category", "");
   setFormValue(form, "date", todayIso());
   renderAll();
 }
 
 function saveTemplate(form) {
-  const type = form.dataset.entryForm;
   const title = formValue(form, "title").trim();
-  const amount = Number(formValue(form, "amount"));
-  if (!title || amount <= 0) return;
-  childState().templates.push({
-    title,
-    amount,
-    type,
-    category: formValue(form, "category") || inferCategory(title, type),
-  });
+  if (!title) return;
+  const exists = childState().templates.some((template) => template.title === title);
+  if (!exists) childState().templates.push({ title });
   saveState();
   renderTemplates();
 }
@@ -389,23 +368,26 @@ els.childSelect.addEventListener("change", () => {
 });
 
 els.monthSelect.addEventListener("change", renderAll);
-els.ledgerForms.forEach((form) => {
-  form.addEventListener("submit", addEntry);
-  form.querySelector('[data-field="title"]').addEventListener("input", () => {
-    const type = form.dataset.entryForm;
-    setFormValue(form, "category", inferCategory(formValue(form, "title"), type));
-  });
-  form.querySelector('[data-field="template"]').addEventListener("change", () => {
-    const selectedTemplate = formValue(form, "template");
-    if (!selectedTemplate) return;
-    const template = childState().templates[Number(selectedTemplate)];
-    if (!template) return;
-    setFormValue(form, "title", template.title);
-    setFormValue(form, "amount", template.amount);
-    setFormValue(form, "category", template.category);
-  });
-  form.querySelector(".save-row-template").addEventListener("click", () => saveTemplate(form));
+els.ledgerEntryForm.addEventListener("submit", addEntry);
+els.ledgerEntryForm.querySelector('[data-field="title"]').addEventListener("input", () => {
+  const type = formValue(els.ledgerEntryForm, "type");
+  if (type === "expense") setFormValue(els.ledgerEntryForm, "category", inferCategory(formValue(els.ledgerEntryForm, "title"), type));
 });
+els.ledgerEntryForm.querySelector('[data-field="type"]').addEventListener("change", () => {
+  const type = formValue(els.ledgerEntryForm, "type");
+  const title = formValue(els.ledgerEntryForm, "title");
+  setFormValue(els.ledgerEntryForm, "category", type === "expense" && title ? inferCategory(title, type) : "");
+});
+els.ledgerEntryForm.querySelector('[data-field="template"]').addEventListener("change", () => {
+  const selectedTemplate = formValue(els.ledgerEntryForm, "template");
+  if (!selectedTemplate) return;
+  const template = childState().templates[Number(selectedTemplate)];
+  if (!template) return;
+  setFormValue(els.ledgerEntryForm, "title", template.title);
+  const type = formValue(els.ledgerEntryForm, "type");
+  setFormValue(els.ledgerEntryForm, "category", type === "expense" ? inferCategory(template.title, type) : "");
+});
+els.ledgerEntryForm.querySelector(".save-row-template").addEventListener("click", () => saveTemplate(els.ledgerEntryForm));
 els.confirmClosingBtn.addEventListener("click", confirmClosing);
 els.wishForm.addEventListener("submit", addWish);
 els.exportBtn.addEventListener("click", exportData);
