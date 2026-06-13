@@ -100,8 +100,8 @@ h2 {
 
 .topbar-controls,
 .work-grid,
+.ledger-grid,
 .analysis-band,
-.entry-form,
 .closing-box,
 .wish-form {
   display: grid;
@@ -147,8 +147,12 @@ h2 {
 }
 
 .work-grid {
-  grid-template-columns: 1.25fr 0.85fr 0.85fr;
+  grid-template-columns: 0.9fr 0.9fr 1.2fr;
   align-items: start;
+}
+
+.ledger-grid {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .panel {
@@ -165,12 +169,8 @@ h2 {
   margin-bottom: 14px;
 }
 
-.entry-panel {
-  grid-row: span 2;
-}
-
 .wishlist-panel {
-  grid-column: span 2;
+  grid-column: auto;
 }
 
 .field {
@@ -191,6 +191,45 @@ select {
   padding: 8px 10px;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.92);
+}
+
+.ledger-lists {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.ledger-list {
+  min-width: 0;
+}
+
+.ledger-list h3 {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+  letter-spacing: 0;
+}
+
+.ledger-entry-row {
+  display: grid;
+  grid-template-columns: 132px minmax(120px, 0.9fr) minmax(150px, 1fr) 110px 64px 64px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ledger-entry-row.expense-row {
+  grid-template-columns: 132px minmax(120px, 0.8fr) minmax(130px, 1fr) 118px 100px 64px 64px;
+}
+
+.ledger-entry-row input,
+.ledger-entry-row select,
+.ledger-entry-row button {
+  min-height: 38px;
+}
+
+.ledger-entry-row button {
+  padding: 0 10px;
+  white-space: nowrap;
 }
 
 .primary {
@@ -322,6 +361,10 @@ table {
   min-width: 720px;
 }
 
+.compact-table table {
+  min-width: 0;
+}
+
 th,
 td {
   padding: 10px 8px;
@@ -358,9 +401,17 @@ td.amount {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .entry-panel,
   .wishlist-panel {
     grid-column: span 2;
+  }
+
+  .ledger-lists {
+    grid-template-columns: 1fr;
+  }
+
+  .ledger-entry-row,
+  .ledger-entry-row.expense-row {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -372,12 +423,13 @@ td.amount {
 
   .topbar-controls,
   .work-grid,
+  .ledger-entry-row,
+  .ledger-entry-row.expense-row,
   .summary-band,
   .wish-form {
     grid-template-columns: 1fr;
   }
 
-  .entry-panel,
   .wishlist-panel {
     grid-column: auto;
   }

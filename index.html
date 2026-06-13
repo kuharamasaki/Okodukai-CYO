@@ -45,46 +45,69 @@
           </article>
         </section>
 
-        <section class="work-grid">
-          <div class="panel entry-panel">
+        <section class="ledger-grid">
+          <div class="panel ledger-panel">
             <div class="panel-heading">
-              <h2>記録する</h2>
-              <button id="saveTemplateBtn" class="secondary" type="button">登録</button>
+              <h2>収入・支出リスト</h2>
+              <button id="exportBtn" class="secondary" type="button">JSON保存</button>
             </div>
-            <form id="entryForm" class="entry-form">
-              <label class="field">
-                <span>登録済み</span>
-                <select id="templateSelect">
-                  <option value="">選択しない</option>
-                </select>
-              </label>
-              <label class="field">
-                <span>日付</span>
-                <input id="entryDate" type="date" required>
-              </label>
-              <label class="field">
-                <span>種類</span>
-                <select id="entryType">
-                  <option value="income">収入</option>
-                  <option value="expense">支出</option>
-                </select>
-              </label>
-              <label class="field">
-                <span>内容</span>
-                <input id="entryTitle" type="text" placeholder="例: お手伝い / お菓子" required>
-              </label>
-              <label class="field">
-                <span>金額</span>
-                <input id="entryAmount" type="number" min="1" step="1" placeholder="300" required>
-              </label>
-              <label class="field">
-                <span>用途</span>
-                <select id="entryCategory"></select>
-              </label>
-              <button class="primary" type="submit">追加</button>
-            </form>
-          </div>
+            <div class="ledger-lists">
+              <section class="ledger-list">
+                <h3>収入</h3>
+                <form class="ledger-entry-row" data-entry-form="income">
+                  <input data-field="date" type="date" required aria-label="収入の日付">
+                  <select data-field="template" aria-label="登録済みの収入"></select>
+                  <input data-field="title" type="text" placeholder="内容" required aria-label="収入の内容">
+                  <input data-field="amount" type="number" min="1" step="1" placeholder="金額" required aria-label="収入の金額">
+                  <button class="secondary save-row-template" type="button">登録</button>
+                  <button class="primary" type="submit">追加</button>
+                </form>
+                <div class="table-wrap compact-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>日付</th>
+                        <th>内容</th>
+                        <th>金額</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="incomeRows"></tbody>
+                  </table>
+                </div>
+              </section>
 
+              <section class="ledger-list">
+                <h3>支出</h3>
+                <form class="ledger-entry-row expense-row" data-entry-form="expense">
+                  <input data-field="date" type="date" required aria-label="支出の日付">
+                  <select data-field="template" aria-label="登録済みの支出"></select>
+                  <input data-field="title" type="text" placeholder="内容" required aria-label="支出の内容">
+                  <select data-field="category" aria-label="支出の用途"></select>
+                  <input data-field="amount" type="number" min="1" step="1" placeholder="金額" required aria-label="支出の金額">
+                  <button class="secondary save-row-template" type="button">登録</button>
+                  <button class="primary" type="submit">追加</button>
+                </form>
+                <div class="table-wrap compact-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>日付</th>
+                        <th>内容</th>
+                        <th>用途</th>
+                        <th>金額</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="expenseRows"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="work-grid">
           <div class="panel closing-panel">
             <div class="panel-heading">
               <h2>月末チェック</h2>
@@ -131,28 +154,6 @@
               </div>
             </div>
             <canvas id="categoryChart" width="760" height="300" aria-label="用途別支出グラフ"></canvas>
-          </div>
-
-          <div class="panel table-panel">
-            <div class="panel-heading">
-              <h2>明細</h2>
-              <button id="exportBtn" class="secondary" type="button">JSON保存</button>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>日付</th>
-                    <th>種類</th>
-                    <th>内容</th>
-                    <th>用途</th>
-                    <th>金額</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="entryRows"></tbody>
-              </table>
-            </div>
           </div>
         </section>
       </main>
