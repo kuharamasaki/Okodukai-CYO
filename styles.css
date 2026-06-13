@@ -26,8 +26,9 @@ body {
   font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
   background-image: var(--app-bg, url("okodukai-backpic-cute.png"));
   background-size: var(--app-bg-size, 720px auto);
-  background-position: top left;
-  background-repeat: repeat;
+  background-color: var(--app-bg-color, #f8e9bd);
+  background-position: var(--app-bg-position, top left);
+  background-repeat: var(--app-bg-repeat, repeat);
   background-attachment: fixed;
 }
 
@@ -227,89 +228,41 @@ input[type="number"]::-webkit-inner-spin-button {
   white-space: nowrap;
 }
 
-.template-menu {
-  position: relative;
-  min-width: 0;
+.template-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 30px;
+  margin: 0 0 12px;
 }
 
-.template-menu-button {
-  width: 100%;
-  min-height: 38px;
-  padding: 8px 30px 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink);
-  background: rgba(255, 255, 255, 0.78);
-  text-align: left;
-}
-
-.template-menu-button::after {
-  position: absolute;
-  top: 50%;
-  right: 11px;
-  content: "⌄";
-  color: var(--muted);
-  transform: translateY(-52%);
-}
-
-.template-menu-list {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 6px);
-  left: 0;
-  display: grid;
-  width: min(320px, 90vw);
-  max-height: 240px;
-  overflow: auto;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-}
-
-.template-menu-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
-  gap: 4px;
+.template-chip {
+  display: inline-flex;
+  gap: 6px;
   align-items: center;
-  padding: 6px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  max-width: 220px;
+  min-height: 30px;
+  padding: 4px 4px 4px 10px;
+  border: 1px solid rgba(15, 118, 110, 0.24);
+  border-radius: 999px;
+  background: rgba(240, 253, 250, 0.62);
+  color: var(--accent-dark);
+  font-size: 0.84rem;
+  font-weight: 700;
 }
 
-.template-menu-item:last-child {
-  border-bottom: 0;
-}
-
-.template-menu-item > button:first-child {
-  min-height: 32px;
+.template-chip span {
   overflow: hidden;
-  padding: 0 8px;
-  color: var(--ink);
-  background: transparent;
-  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.template-menu-item > button:first-child:hover {
-  background: rgba(15, 118, 110, 0.08);
-}
-
-.template-delete-btn {
-  min-width: 30px;
-  min-height: 30px;
+.template-chip button {
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 999px;
   color: var(--danger);
-  border-color: rgba(185, 28, 28, 0.2);
-  background: rgba(254, 242, 242, 0.78);
-}
-
-.template-empty {
-  margin: 0;
-  padding: 10px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.58);
 }
 
 .primary {
