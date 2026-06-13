@@ -1,4 +1,5 @@
 const STORAGE_KEY = "okodukai-cyo-state-v1";
+const USE_SERVER_STORAGE = ["http:", "https:"].includes(window.location.protocol);
 
 const children = ["SOSUKE", "EMMA"];
 const categories = ["おやつ", "文房具", "本", "ゲーム", "おでかけ", "プレゼント", "貯金", "雑貨", "その他"];
@@ -35,7 +36,7 @@ const els = {
 
 let activeChild = children[0];
 let activePeriod = "month";
-let state = loadState();
+let state = null;
 
 function defaultChild() {
   return {
@@ -47,9 +48,7 @@ function defaultChild() {
   };
 }
 
-function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  const parsed = saved ? JSON.parse(saved) : {};
+function normalizeState(parsed = {}) {
   const data = { children: {} };
   children.forEach((child) => {
     data.children[child] = { ...defaultChild(), ...(parsed.children?.[child] || {}) };
@@ -57,8 +56,60 @@ function loadState() {
   return data;
 }
 
+function hasSavedData(data) {
+  return children.some((child) => {
+    const childData = data.children?.[child];
+    return Boolean(
+      childData?.entries?.length ||
+        childData?.templates?.length ||
+        childData?.wishes?.length ||
+        Object.keys(childData?.closings || {}).length ||
+        childData?.theme !== "cute",
+    );
+  });
+}
+
+function loadLocalState() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return normalizeState(saved ? JSON.parse(saved) : {});
+}
+
+async function saveRemoteState(data) {
+  await fetch("/api/state", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+async function loadState() {
+  if (!USE_SERVER_STORAGE) return loadLocalState();
+
+  try {
+    const response = await fetch("/api/state", { cache: "no-store" });
+    if (!response.ok) throw new Error("Failed to load shared state");
+    const remoteState = normalizeState(await response.json());
+    const localState = loadLocalState();
+
+    if (!hasSavedData(remoteState) && hasSavedData(localState)) {
+      await saveRemoteState(localState);
+      return localState;
+    }
+
+    return remoteState;
+  } catch (error) {
+    console.warn("Shared storage is unavailable. Falling back to browser storage.", error);
+    return loadLocalState();
+  }
+}
+
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (USE_SERVER_STORAGE) {
+    saveRemoteState(state).catch((error) => {
+      console.warn("Failed to save shared state. Browser storage still has a copy.", error);
+    });
+  }
 }
 
 function childState() {
@@ -459,4 +510,9 @@ document.addEventListener("click", (event) => {
   }
 });
 
-renderAll();
+async function initApp() {
+  state = await loadState();
+  renderAll();
+}
+
+initApp();

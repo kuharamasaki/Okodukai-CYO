@@ -7,3 +7,4 @@ Thumbs.db
 # Local exports and temporary files
 *.log
 okodukai-cyo-*.json
+data/
