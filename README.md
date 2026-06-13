@@ -6,15 +6,13 @@
 
 `index.html` をブラウザで開くとローカルで動きます。データはブラウザの `localStorage` に保存されます。
 
-家庭内の別PCから同じ台帳を使う場合は、メインPCでサーバーを起動します。
+家庭内で別PCをメイン入力PCにする場合は、そのPCで `start-okodukai.bat` をダブルクリックします。サーバーが起動し、ブラウザで `http://localhost:8787` が自動で開きます。
 
 ```powershell
-node server.js
+start-okodukai.bat
 ```
 
-Node.js をインストール済みなら、`start-okodukai.bat` をダブルクリックして起動することもできます。
-
-メインPCでは `http://localhost:8787` を開きます。別PCではメインPCのIPアドレスを使って `http://<メインPCのIPアドレス>:8787` を開きます。この場合、データは `data/okodukai-state.json` に共有保存されます。
+この場合、データはそのPCの OneDrive 上にある `data/okodukai-state.json` に保存されます。別PCで同じフォルダを使う場合も、同時入力は避けてください。
 
 ## GitHub 初期登録
 
