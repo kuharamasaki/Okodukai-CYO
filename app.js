@@ -1,7 +1,7 @@
 const STORAGE_KEY = "okodukai-cyo-state-v1";
 
 const children = ["SOSUKE", "EMMA"];
-const categories = ["おやつ", "文房具", "本", "ゲーム", "おでかけ", "プレゼント", "貯金", "その他"];
+const categories = ["おやつ", "文房具", "本", "ゲーム", "おでかけ", "プレゼント", "貯金", "雑貨", "その他"];
 const themes = [
   { id: "cute", name: "Cute", file: "okodukai-backpic-cute.png" },
   { id: "cool", name: "Cool", file: "okodukai-backpic-cool.png" },
@@ -25,6 +25,7 @@ const els = {
   wishList: document.querySelector("#wishList"),
   categoryChart: document.querySelector("#categoryChart"),
   entryRows: document.querySelector("#entryRows"),
+  templateList: document.querySelector("#templateList"),
   exportBtn: document.querySelector("#exportBtn"),
 };
 
@@ -99,6 +100,7 @@ function inferCategory(title, type) {
     ["ゲーム", ["ゲーム", "カード", "アプリ"]],
     ["おでかけ", ["電車", "バス", "映画", "公園", "おでかけ"]],
     ["プレゼント", ["プレゼント", "誕生日", "ギフト"]],
+    ["雑貨", ["雑貨", "シール", "キーホルダー", "アクセサリー", "小物"]],
   ];
   return rules.find(([, words]) => words.some((word) => text.includes(word)))?.[0] || "その他";
 }
@@ -140,23 +142,36 @@ function renderSelectors() {
 function renderTemplates() {
   const templateSelect = els.ledgerEntryForm.querySelector('[data-field="template"]');
   const seen = new Set();
-  const options = childState().templates
+  const templates = childState().templates
     .map((template, index) => ({ template, index }))
     .filter(({ template }) => {
       const title = template.title?.trim();
       if (!title || seen.has(title)) return false;
       seen.add(title);
       return true;
-    })
+    });
+  const options = templates
     .map(({ template, index }) => `<option value="${index}">${escapeHtml(template.title)}</option>`)
     .join("");
   templateSelect.innerHTML = `<option value="">登録済み</option>${options}`;
+  els.templateList.innerHTML =
+    templates
+      .map(
+        ({ template, index }) => `
+          <span class="template-chip">
+            <span>${escapeHtml(template.title)}</span>
+            <button type="button" data-delete-template="${index}" aria-label="${escapeHtml(template.title)}を削除">×</button>
+          </span>
+        `,
+      )
+      .join("") || `<p class="message">登録済みの内容はまだありません。</p>`;
 }
 
 function renderThemes() {
   const selectedTheme = childState().theme;
   const theme = themes.find((item) => item.id === selectedTheme) || themes[0];
   document.body.style.setProperty("--app-bg", `url("${theme.file}")`);
+  document.body.style.setProperty("--app-bg-size", theme.id === "cool" ? "760px auto" : "700px auto");
   document.body.classList.toggle("theme-cool", theme.id === "cool");
   els.themeChoices.innerHTML = themes
     .map(
@@ -219,11 +234,10 @@ function renderWishes() {
   els.wishList.innerHTML =
     wishes
       .map((wish) => {
-        const remaining = Math.max(wish.price - balance, 0);
         return `
           <div class="wish-item">
             <strong>${escapeHtml(wish.name)}</strong>
-            <span>${yen(wish.price)} / あと ${yen(remaining)}</span>
+            <span>${yen(wish.price)}</span>
             <button class="delete-btn" type="button" data-delete-wish="${wish.id}" aria-label="削除">×</button>
           </div>
         `;
@@ -412,6 +426,14 @@ document.addEventListener("click", (event) => {
     state.children[activeChild].wishes = childState().wishes.filter((wish) => wish.id !== wishId);
     saveState();
     renderWishes();
+  }
+
+  const templateIndex = event.target.closest("[data-delete-template]")?.dataset.deleteTemplate;
+  if (templateIndex) {
+    childState().templates.splice(Number(templateIndex), 1);
+    saveState();
+    renderTemplates();
+    setFormValue(els.ledgerEntryForm, "template", "");
   }
 
   const period = event.target.closest("[data-period]")?.dataset.period;
