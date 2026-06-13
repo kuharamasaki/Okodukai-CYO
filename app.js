@@ -5,6 +5,10 @@ const categories = ["おやつ", "文房具", "本", "ゲーム", "おでかけ"
 const themes = [
   { id: "cute", name: "Cute", file: "okodukai-backpic-cute.png" },
   { id: "cool", name: "Cool", file: "okodukai-backpic-cool.png" },
+  { id: "zukusi", name: "Zukusi", file: "okodukai-backpic-zukusi.png" },
+  { id: "soccer", name: "Soccer", file: "okodukai-backpic-soccer.png" },
+  { id: "rakugo", name: "Rakugo", file: "okodukai-backpic-rakugo.png" },
+  { id: "surfer", name: "Surfer", file: "okodukai-backpic-surfer.png" },
 ];
 
 const els = {
@@ -25,7 +29,8 @@ const els = {
   wishList: document.querySelector("#wishList"),
   categoryChart: document.querySelector("#categoryChart"),
   entryRows: document.querySelector("#entryRows"),
-  templateList: document.querySelector("#templateList"),
+  templateMenuButton: document.querySelector("#templateMenuButton"),
+  templateMenuList: document.querySelector("#templateMenuList"),
   exportBtn: document.querySelector("#exportBtn"),
 };
 
@@ -140,7 +145,6 @@ function renderSelectors() {
 }
 
 function renderTemplates() {
-  const templateSelect = els.ledgerEntryForm.querySelector('[data-field="template"]');
   const seen = new Set();
   const templates = childState().templates
     .map((template, index) => ({ template, index }))
@@ -150,29 +154,26 @@ function renderTemplates() {
       seen.add(title);
       return true;
     });
-  const options = templates
-    .map(({ template, index }) => `<option value="${index}">${escapeHtml(template.title)}</option>`)
-    .join("");
-  templateSelect.innerHTML = `<option value="">登録済み</option>${options}`;
-  els.templateList.innerHTML =
+  els.templateMenuButton.textContent = "登録済み";
+  els.templateMenuList.innerHTML =
     templates
       .map(
         ({ template, index }) => `
-          <span class="template-chip">
-            <span>${escapeHtml(template.title)}</span>
-            <button type="button" data-delete-template="${index}" aria-label="${escapeHtml(template.title)}を削除">×</button>
-          </span>
+          <div class="template-menu-item">
+            <button type="button" data-choose-template="${index}">${escapeHtml(template.title)}</button>
+            <button class="template-delete-btn" type="button" data-delete-template="${index}" aria-label="${escapeHtml(template.title)}を削除">×</button>
+          </div>
         `,
       )
-      .join("") || `<p class="message">登録済みの内容はまだありません。</p>`;
+      .join("") || `<p class="template-empty">登録済みの内容はまだありません。</p>`;
 }
 
 function renderThemes() {
   const selectedTheme = childState().theme;
   const theme = themes.find((item) => item.id === selectedTheme) || themes[0];
   document.body.style.setProperty("--app-bg", `url("${theme.file}")`);
-  document.body.style.setProperty("--app-bg-size", theme.id === "cool" ? "760px auto" : "700px auto");
-  document.body.classList.toggle("theme-cool", theme.id === "cool");
+  document.body.style.setProperty("--app-bg-size", ["cute", "zukusi"].includes(theme.id) ? "700px auto" : "760px auto");
+  document.body.classList.toggle("theme-cool", ["cool", "soccer", "surfer"].includes(theme.id));
   els.themeChoices.innerHTML = themes
     .map(
       (item) => `
@@ -322,7 +323,6 @@ function addEntry(event) {
   saveState();
   setFormValue(form, "title", "");
   setFormValue(form, "amount", "");
-  setFormValue(form, "template", "");
   setFormValue(form, "category", "");
   setFormValue(form, "date", todayIso());
   renderAll();
@@ -392,14 +392,8 @@ els.ledgerEntryForm.querySelector('[data-field="type"]').addEventListener("chang
   const title = formValue(els.ledgerEntryForm, "title");
   setFormValue(els.ledgerEntryForm, "category", type === "expense" && title ? inferCategory(title, type) : "");
 });
-els.ledgerEntryForm.querySelector('[data-field="template"]').addEventListener("change", () => {
-  const selectedTemplate = formValue(els.ledgerEntryForm, "template");
-  if (!selectedTemplate) return;
-  const template = childState().templates[Number(selectedTemplate)];
-  if (!template) return;
-  setFormValue(els.ledgerEntryForm, "title", template.title);
-  const type = formValue(els.ledgerEntryForm, "type");
-  setFormValue(els.ledgerEntryForm, "category", type === "expense" ? inferCategory(template.title, type) : "");
+els.templateMenuButton.addEventListener("click", () => {
+  els.templateMenuList.hidden = !els.templateMenuList.hidden;
 });
 els.ledgerEntryForm.querySelector(".save-row-template").addEventListener("click", () => saveTemplate(els.ledgerEntryForm));
 els.confirmClosingBtn.addEventListener("click", confirmClosing);
@@ -421,6 +415,18 @@ document.addEventListener("click", (event) => {
     renderAll();
   }
 
+  const chosenTemplate = event.target.closest("[data-choose-template]")?.dataset.chooseTemplate;
+  if (chosenTemplate) {
+    const template = childState().templates[Number(chosenTemplate)];
+    if (template) {
+      setFormValue(els.ledgerEntryForm, "title", template.title);
+      const type = formValue(els.ledgerEntryForm, "type");
+      setFormValue(els.ledgerEntryForm, "category", type === "expense" ? inferCategory(template.title, type) : "");
+      els.templateMenuButton.textContent = template.title;
+      els.templateMenuList.hidden = true;
+    }
+  }
+
   const wishId = event.target.closest("[data-delete-wish]")?.dataset.deleteWish;
   if (wishId) {
     state.children[activeChild].wishes = childState().wishes.filter((wish) => wish.id !== wishId);
@@ -433,7 +439,7 @@ document.addEventListener("click", (event) => {
     childState().templates.splice(Number(templateIndex), 1);
     saveState();
     renderTemplates();
-    setFormValue(els.ledgerEntryForm, "template", "");
+    els.templateMenuList.hidden = false;
   }
 
   const period = event.target.closest("[data-period]")?.dataset.period;
@@ -443,6 +449,12 @@ document.addEventListener("click", (event) => {
       button.classList.toggle("active", button.dataset.period === period);
     });
     renderChart();
+  }
+});
+
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".template-menu")) {
+    els.templateMenuList.hidden = true;
   }
 });
 

@@ -38,7 +38,10 @@
                 <option value="income">収入</option>
                 <option value="expense">支出</option>
               </select>
-              <select data-field="template" aria-label="登録済みの内容"></select>
+              <div class="template-menu">
+                <button id="templateMenuButton" class="template-menu-button" type="button">登録済み</button>
+                <div id="templateMenuList" class="template-menu-list" hidden></div>
+              </div>
               <input data-field="title" type="text" placeholder="内容" required aria-label="内容">
               <select data-field="category" aria-label="用途"></select>
               <label class="money-input">
@@ -48,7 +51,6 @@
               <button class="secondary save-row-template" type="button">登録</button>
               <button class="primary" type="submit">追加</button>
             </form>
-            <div id="templateList" class="template-list" aria-label="登録済みの内容"></div>
             <div class="table-wrap">
               <table class="ledger-table">
                 <thead>
