@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Okodukai CYO</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Okodukai CYO</p>
+          <h1>お小遣い台帳</h1>
+        </div>
+        <div class="topbar-controls">
+          <label class="field compact">
+            <span>こども</span>
+            <select id="childSelect"></select>
+          </label>
+          <label class="field compact">
+            <span>月</span>
+            <input id="monthSelect" type="month">
+          </label>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="summary-band">
+          <article>
+            <span>収入</span>
+            <strong id="incomeTotal">¥0</strong>
+          </article>
+          <article>
+            <span>支出</span>
+            <strong id="expenseTotal">¥0</strong>
+          </article>
+          <article>
+            <span>システム残高</span>
+            <strong id="balanceTotal">¥0</strong>
+          </article>
+          <article>
+            <span>月末確認</span>
+            <strong id="closingStatus">未確認</strong>
+          </article>
+        </section>
+
+        <section class="work-grid">
+          <div class="panel entry-panel">
+            <div class="panel-heading">
+              <h2>記録する</h2>
+              <button id="saveTemplateBtn" class="secondary" type="button">登録</button>
+            </div>
+            <form id="entryForm" class="entry-form">
+              <label class="field">
+                <span>登録済み</span>
+                <select id="templateSelect">
+                  <option value="">選択しない</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>日付</span>
+                <input id="entryDate" type="date" required>
+              </label>
+              <label class="field">
+                <span>種類</span>
+                <select id="entryType">
+                  <option value="income">収入</option>
+                  <option value="expense">支出</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>内容</span>
+                <input id="entryTitle" type="text" placeholder="例: お手伝い / お菓子" required>
+              </label>
+              <label class="field">
+                <span>金額</span>
+                <input id="entryAmount" type="number" min="1" step="1" placeholder="300" required>
+              </label>
+              <label class="field">
+                <span>用途</span>
+                <select id="entryCategory"></select>
+              </label>
+              <button class="primary" type="submit">追加</button>
+            </form>
+          </div>
+
+          <div class="panel closing-panel">
+            <div class="panel-heading">
+              <h2>月末チェック</h2>
+            </div>
+            <div class="closing-box">
+              <label class="field">
+                <span>財布の残高</span>
+                <input id="walletBalance" type="number" min="0" step="1" placeholder="0">
+              </label>
+              <button id="confirmClosingBtn" class="primary" type="button">一致を確認</button>
+              <p id="closingMessage" class="message"></p>
+            </div>
+          </div>
+
+          <div class="panel theme-panel">
+            <div class="panel-heading">
+              <h2>背景</h2>
+            </div>
+            <div id="themeChoices" class="theme-choices"></div>
+          </div>
+
+          <div class="panel wishlist-panel">
+            <div class="panel-heading">
+              <h2>ほしいもの</h2>
+              <strong id="wishNeedTotal">あと ¥0</strong>
+            </div>
+            <form id="wishForm" class="wish-form">
+              <input id="wishName" type="text" placeholder="ほしいもの" required>
+              <input id="wishPrice" type="number" min="1" step="1" placeholder="ねだん" required>
+              <button class="secondary" type="submit">追加</button>
+            </form>
+            <div id="wishList" class="wish-list"></div>
+          </div>
+        </section>
+
+        <section class="analysis-band">
+          <div class="panel chart-panel">
+            <div class="panel-heading">
+              <h2>分析</h2>
+              <div class="segmented" role="group" aria-label="分析期間">
+                <button class="period-btn active" type="button" data-period="month">月</button>
+                <button class="period-btn" type="button" data-period="half">半年</button>
+                <button class="period-btn" type="button" data-period="year">一年</button>
+              </div>
+            </div>
+            <canvas id="categoryChart" width="760" height="300" aria-label="用途別支出グラフ"></canvas>
+          </div>
+
+          <div class="panel table-panel">
+            <div class="panel-heading">
+              <h2>明細</h2>
+              <button id="exportBtn" class="secondary" type="button">JSON保存</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>日付</th>
+                    <th>種類</th>
+                    <th>内容</th>
+                    <th>用途</th>
+                    <th>金額</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="entryRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

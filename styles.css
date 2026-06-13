@@ -1,0 +1,384 @@
+:root {
+  color-scheme: light;
+  --ink: #1f2933;
+  --muted: #64748b;
+  --line: rgba(15, 23, 42, 0.16);
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-strong: rgba(255, 255, 255, 0.96);
+  --accent: #0f766e;
+  --accent-dark: #115e59;
+  --danger: #b91c1c;
+  --shadow: 0 16px 42px rgba(15, 23, 42, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+  background-image: var(--app-bg, url("okodukai-backpic-cute.png"));
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(1px);
+}
+
+body.theme-cool::before {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 40px;
+}
+
+.topbar,
+.summary-band,
+.panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.topbar {
+  display: flex;
+  gap: 20px;
+  align-items: end;
+  justify-content: space-between;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--accent-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+h1,
+h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+h2 {
+  font-size: 1.05rem;
+}
+
+.topbar-controls,
+.work-grid,
+.analysis-band,
+.entry-form,
+.closing-box,
+.wish-form {
+  display: grid;
+  gap: 12px;
+}
+
+.topbar-controls {
+  grid-template-columns: 160px 160px;
+}
+
+.dashboard {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.summary-band {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.summary-band article {
+  min-width: 0;
+  padding: 18px;
+  background: var(--panel-strong);
+}
+
+.summary-band span,
+.field span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.summary-band strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.35rem;
+}
+
+.work-grid {
+  grid-template-columns: 1.25fr 0.85fr 0.85fr;
+  align-items: start;
+}
+
+.panel {
+  min-width: 0;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.panel-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.entry-panel {
+  grid-row: span 2;
+}
+
+.wishlist-panel {
+  grid-column: span 2;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field.compact {
+  min-width: 0;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.primary {
+  color: white;
+  background: var(--accent);
+}
+
+.primary:hover {
+  background: var(--accent-dark);
+}
+
+.secondary {
+  color: var(--accent-dark);
+  border-color: rgba(15, 118, 110, 0.32);
+  background: rgba(240, 253, 250, 0.92);
+}
+
+.secondary:hover {
+  border-color: var(--accent);
+}
+
+.message {
+  min-height: 22px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.message.ok {
+  color: var(--accent-dark);
+}
+
+.message.bad {
+  color: var(--danger);
+}
+
+.theme-choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.theme-choice {
+  min-height: 96px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+}
+
+.theme-choice.active {
+  border-color: var(--accent);
+}
+
+.theme-choice span {
+  display: inline-block;
+  margin: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.86);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.wish-form {
+  grid-template-columns: 1fr 110px 76px;
+}
+
+.wish-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wish-item {
+  display: grid;
+  grid-template-columns: 1fr auto 40px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.analysis-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.segmented {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.period-btn {
+  min-height: 34px;
+  border: 0;
+  border-radius: 0;
+  padding: 0 14px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.period-btn.active {
+  color: white;
+  background: var(--accent);
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+td.amount {
+  text-align: right;
+  font-weight: 700;
+}
+
+.delete-btn {
+  min-width: 34px;
+  min-height: 34px;
+  color: var(--danger);
+  border-color: rgba(185, 28, 28, 0.24);
+  background: rgba(254, 242, 242, 0.9);
+}
+
+@media (max-width: 920px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .work-grid,
+  .summary-band {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .entry-panel,
+  .wishlist-panel {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    width: min(100% - 20px, 1180px);
+    padding-top: 10px;
+  }
+
+  .topbar-controls,
+  .work-grid,
+  .summary-band,
+  .wish-form {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-panel,
+  .wishlist-panel {
+    grid-column: auto;
+  }
+}
